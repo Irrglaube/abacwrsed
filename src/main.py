@@ -1,9 +1,9 @@
 import pygame, numpy
 import math
 
-WIDTH = 800
-HEIGHT = 600
-BACKGROUND = (0, 0, 0)
+WIDTH = 1920 #/ 2
+HEIGHT = 1080 #/ 2
+BACKGROUND = (60, 110, 110)
 
 SQUARE_ROOT_OF_TWO = math.sqrt(2)
 
@@ -33,7 +33,7 @@ class Player(Sprite):
         self.animation_index = 0
         self.facing_left = False
 
-        self.speed = 4
+        self.speed = 8
         self.jumpspeed = 20
         self.vsp = 0
         self.gravity = 0
@@ -68,13 +68,17 @@ class Player(Sprite):
         hsp = (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]) * self.speed
         vsp = (keys[pygame.K_DOWN] - keys[pygame.K_UP]) * self.speed
 
-        if hsp < 0:
-            self.facing_left = True
-            self.walk_animation()
+        # Temporarily disabled for simpler testing until we make the walking animation [1]
+        
+        #if hsp < 0:
+            #self.facing_left = True
+            #self.walk_animation()
 
-        else:
-            self.facing_right = True
-            self.walk_animation()
+        #else:
+            #self.facing_left = False
+            #self.walk_animation()
+        
+        # End of disable [1]
 
 
         if hsp * vsp != 0:
@@ -112,24 +116,49 @@ class Player(Sprite):
         return collide
 
 
-class Box(Sprite):
+class Wall_V(Sprite):
     def __init__(self, startx, starty):
-        super().__init__("boxAlt.png", startx, starty)
+        super().__init__("TempWall_V.png", startx, starty)      #Wall Vertical
 
+class Wall_H(Sprite):
+    def __init__(self, startx, starty):
+        super().__init__("TempWall_H.png", startx, starty)      #Wall Horizontal
+
+class Wall_H_JD(Sprite):
+    def __init__(self, startx, starty):
+        super().__init__("TempWall_H_JD.png", startx, starty)   #Wall Horizontal Join Down
+
+class Wall_VE_JU(Sprite):
+    def __init__(self, startx, starty):
+        super().__init__("TempWall_VE_JU.png", startx, starty)  #Wall Vertical End Join Up
+
+class Barrier(Sprite):
+    def __init__(self, startx, starty):
+        super().__init__("Barrier.png", startx, starty)         #Barrier
 
 def main():
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     clock = pygame.time.Clock()
 
-    player = Player(100, 200)
+    player = Player(WIDTH / 2, HEIGHT / 2)  #Sets player to centre of screen
 
     boxes = pygame.sprite.Group()
-    for bx in range(0, 400, 70):
-        boxes.add(Box(bx, 300))
 
-    boxes.add(Box(330, 230))
-    boxes.add(Box(100, 70))
+    for bx in range(0, 1920, 70):          
+        boxes.add(Wall_H(bx, 100))                   #Wall top horizontal row
+
+    for by in range(170, 730, 70):          
+        for bx in range(6):
+            boxes.add(Wall_V(bx * 384, by))         #Wall vertical array
+            boxes.add(Wall_H_JD(bx * 384, 100))     #Wall horizontal top join sections [Currently overwriting 'Wall top horizontal row'. Is this an issue?]
+            boxes.add(Wall_VE_JU(bx * 384, 730))    #Wall vertical End Join Up
+    
+    for bx in range(0, 1920, 80):                   #Barrier bottom row
+        boxes.add(Barrier(bx + 40, 1040))
+            
+    
+    #boxes.add(Box(330, 800))                       #Individual box
 
     while True:
         pygame.event.pump()
@@ -142,7 +171,7 @@ def main():
         pygame.display.flip()
 
         clock.tick(60)
-
+    
 
 if __name__ == "__main__":
     main()
