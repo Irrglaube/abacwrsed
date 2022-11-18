@@ -19,7 +19,7 @@ class Sprite(pygame.sprite.Sprite):
     def update(self):
         pass
 
-    def event(self):
+    def event(self, **kwargs):
         pass
 
     def draw(self, screen):
@@ -115,7 +115,7 @@ class Player(Sprite):
         self.rect.move_ip([x, y])
         collide = pygame.sprite.spritecollideany(self, grounds)
         if collide:
-            collide.event()
+            collide.event(player=self)
 
         self.rect.move_ip([-x, -y])
         return collide
@@ -141,9 +141,13 @@ class Barrier(Sprite):
     def __init__(self, startx, starty):
         super().__init__("Barrier.png", startx, starty)
 
-class FancyBarrier(Barrier):
-    def event(self):
-        print("BOOOOO")
+class SadBarrier(Barrier):
+    def event(self, player):
+        player.stand_image = pygame.image.load("p1_front_cry.png")
+
+class HappyBarrier(Barrier):
+    def event(self, player):
+        player.stand_image = pygame.image.load("p1_front.png")
 
 def main():
     pygame.init()
@@ -168,7 +172,8 @@ def main():
         for i in range(3):
             boxes.add(Barrier((i * 70) + 630, 660))             #Barrier blocking access to one room
 
-        boxes.add(FancyBarrier((3 * 70) + 630, 660))
+        boxes.add(SadBarrier((3 * 70) + 630, 800))
+        boxes.add(HappyBarrier((6 * 70) + 630, 800))
 
     while True:
         pygame.event.pump()
